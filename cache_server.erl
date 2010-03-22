@@ -2,8 +2,13 @@
 
 -behaviour(gen_server).
 
+%% RUN TESTS VIA:
+
+% erlc cache_server.erl  && erl -s cache_server
+
 %% API
 -export([start_link/0,
+         start/0,
          store/2,
          fetch/1,
          delete/1]).
@@ -62,3 +67,14 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+start() ->
+    cache_server:start_link(),
+    cache_server:store(one, 1),
+    cache_server:store(two, 2),
+    1 = cache_server:fetch(one),
+    2 = cache_server:fetch(two),
+    cache_server:delete(one),
+    not_found = cache_server:fetch(one),
+    2 = cache_server:fetch(two),
+    io:format("tests pass~n"),
+    init:stop().
