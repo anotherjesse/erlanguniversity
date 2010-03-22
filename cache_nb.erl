@@ -23,10 +23,12 @@ init([]) ->
     {ok, #state{}}.
 
 sock_opts() ->
-    [list, {packet, line}, {active, false}, {reuseaddr, true}].
+    % [list, {packet, line}, {active, false}, {reuseaddr, true}].
+    [binary, {packet, http_bin}, {active, false}, {reuseaddr, true}].
 
 new_connection(Sock, State) ->
-    cache_nb_worker:start(Sock),
+    % cache_nb_worker:start(Sock),
+    cache_nb_web_worker:start(Sock),
     {ok, State}.
 
 handle_call(_Request, _From, State) ->
