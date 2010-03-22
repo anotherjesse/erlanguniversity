@@ -24,10 +24,10 @@ start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 store(K, V) ->
-    gen_server:call(?SERVER, {store, K, V}).
+    gen_server:cast(?SERVER, {store, K, V}).
 
 delete(K) ->
-    gen_server:call(?SERVER, {delete, K}).
+    gen_server:cast(?SERVER, {delete, K}).
 
 fetch(K) ->
     gen_server:call(?SERVER, {fetch, K}).
@@ -35,8 +35,6 @@ fetch(K) ->
 init([]) ->
     {ok, dict:new()}.
 
-handle_call({store, K, V}, _From, State) ->
-    {reply, ok, dict:store(K, V, State)};
 
 handle_call({fetch, K}, _From, State) ->
     case dict:find(K, State) of
@@ -46,14 +44,14 @@ handle_call({fetch, K}, _From, State) ->
             {reply, V, State}
     end;
 
-handle_call({delete, K}, _From, State) ->
-    {reply, ok, dict:erase(K, State)};
-
 handle_call(_Request, _From, State) ->
     {reply, ignore, State}.
+    
+handle_cast({store, K, V}, State) ->
+    {noreply, dict:store(K, V, State)};
 
-handle_cast(clear, _State) ->
-    {noreply, dict:new()};
+handle_cast({delete, K}, State) ->
+    {noreply, dict:erase(K, State)};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
